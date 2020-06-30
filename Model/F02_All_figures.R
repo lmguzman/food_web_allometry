@@ -16,7 +16,7 @@ survived <- read.csv("Results/survived_correctA_symetrical.csv")
 vertical_cover <- vertical %>%
   filter(prey_num > 2) %>% 
   ggplot(aes(x = X1, y = X3)) + geom_point(colour = 'darkgrey') +
-  facet_wrap(~prey_num) + ylab("Body Mass 2") + xlab("Body Mass 1") +
+  facet_wrap(~prey_num) + ylab("Body Mass 2") + xlab("Body Mass 1") +theme_cowplot() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         strip.background = element_rect(colour="white", fill="white"),
@@ -86,13 +86,13 @@ prey_num_proportion <- min_max_vertical %>%
 
 prey_num_proportion_plot <-prey_num_proportion %>% 
   filter(Fail == FALSE) %>% 
-  ggplot(aes(x = prey_num, y = proportion)) + geom_line() + xlab("Initial prey diversity") + ylab("Proportion of runs where predator persists") 
+  ggplot(aes(x = prey_num, y = proportion)) + geom_line() + xlab("Initial prey diversity") + ylab("Proportion of runs where predator persists") +theme_cowplot() 
 
 Prey_community_prortion <- num_below_proportion %>% 
   ungroup() %>% 
   mutate(bined_proportion = .bincode(num_below_proportion$proportion_community, c(0, 0.25, 0.5, 0.75, 1), right = TRUE, include.lowest = TRUE)) %>% 
   filter(Fail == FALSE) %>% 
-  ggplot(aes(x = prey_num, y = proportion, colour = proportion_community)) + geom_point() +
+  ggplot(aes(x = prey_num, y = proportion, colour = proportion_community)) + geom_point() +theme_cowplot() +
   scale_colour_viridis(name = "Proportion of \nsmall prey in \nthe community") + xlab("Initial prey diversity") + ylab("Proportion of runs where predator persists") 
 
 ggsave('Figures/Figure4b.jpeg', Prey_community_prortion, width = 6.5)
@@ -119,7 +119,7 @@ num_above_proportion <- min_max_vertical %>%
 fig_num_above_proportion <- num_above_proportion %>% 
   ungroup() %>% 
   filter(Fail == FALSE) %>% 
-  ggplot(aes(x = prey_num, y = proportion, colour = proportion_community)) + geom_point() +
+  ggplot(aes(x = prey_num, y = proportion, colour = proportion_community)) + geom_point() +theme_cowplot() +
   scale_colour_viridis(name = 'Proportion of \nlarge prey in \nthe community') + xlab("Initial prey diversity") + ylab("Proportion of runs where predator persists") 
 
 ggsave('Figures/Figure4c.jpeg', fig_num_above_proportion, width = 6.5)
@@ -138,7 +138,7 @@ num_duplicated_proportion <- min_max_vertical %>%
 fig_num_duplicated_proportion <- num_duplicated_proportion %>% 
   ungroup() %>% 
   filter(Fail == FALSE) %>% 
-  ggplot(aes(x = prey_num, y = proportion, colour = proportion_community)) + geom_point() +
+  ggplot(aes(x = prey_num, y = proportion, colour = proportion_community)) + geom_point() +theme_cowplot() +
   scale_colour_viridis(name = 'Proportion of \nduplicate prey in \nthe community') + xlab("Initial prey diversity") + ylab("Proportion of runs where predator persists") 
 
 ggsave('Figures/FigureA6.jpeg', fig_num_duplicated_proportion, width = 6.5)
@@ -166,16 +166,16 @@ percentage_scenarios <- scenarios %>%
             p_pred_max = sum(pred_max)/10, p_vertical = sum(vertical)/10) 
   
 survive_percentage <- percentage_scenarios %>%
-  ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_survive), shape=15, size=5) +
+  ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_survive), shape=15, size=5) +theme_cowplot() +
   scale_color_viridis() + theme(legend.position="none") + xlab("Body mass 1") + ylab("Body mass 2")
 
 
 horizontal_percentage <- percentage_scenarios %>%
-  ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_horizontal), shape=15, size=5) +
+  ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_horizontal), shape=15, size=5) +theme_cowplot() +
   scale_color_viridis() + theme(legend.position="none") + xlab("Body mass 1") + ylab("")
 
 vertical_percentage <- percentage_scenarios %>%
-  ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_vertical), shape=15, size=5) +
+  ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_vertical), shape=15, size=5) +theme_cowplot() +
   scale_color_viridis() + theme(legend.position="none") + xlab("Body mass 1") + ylab("")
 
 two_prey_plot <- plot_grid(survive_percentage, horizontal_percentage, vertical_percentage, nrow = 1)
@@ -186,6 +186,7 @@ ggsave('Figures/Figure3.jpeg', two_prey_plot, width = 12, height  = 4)
 legend_two_all <- percentage_scenarios %>%
   ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_horizontal), shape=15, size=5) +
   scale_color_viridis(breaks = c(0, 0.25, 0.5, 0.75, 1))  +
+  theme_cowplot() +
   theme(legend.position="bottom")
 
 ggsave('Figures/legendFigure3.jpeg', legend_two_all )
@@ -213,15 +214,17 @@ percentage_scenarios <- scenarios %>%
 
 survive_percentage <- percentage_scenarios %>%
   ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_survive), shape=15, size=5) +
+  theme_cowplot() +
   scale_color_viridis() + theme(legend.position="none") + xlab("Body mass 1") + ylab("Body mass 2")
 
 
 horizontal_percentage <- percentage_scenarios %>%
   ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_horizontal), shape=15, size=5) +
+  theme_cowplot() +
   scale_color_viridis() + theme(legend.position="none") + xlab("Body mass 1") + ylab("")
 
 vertical_percentage <- percentage_scenarios %>%
-  ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_vertical), shape=15, size=5) +
+  ggplot(aes(x = X1, y = X2)) + geom_point(aes(color=p_vertical), shape=15, size=5) +theme_cowplot() +
   scale_color_viridis() + theme(legend.position="none") + xlab("Body mass 1") + ylab("")
 
 two_prey_plot <- plot_grid(survive_percentage, horizontal_percentage, vertical_percentage, nrow = 1)
@@ -239,9 +242,9 @@ min_max_survived <- survived %>%
          max_bm = lift_vd(max, na.rm = TRUE)(X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21)) 
 
 min_bm_support <- min_max_survived %>%  
-  ggplot(aes(x = min_bm, y = prey_num, colour = prey_num)) + geom_point() + scale_colour_viridis() +
-  xlab('Minimum body mass to support community') + ylab('Prey diversity') + theme(legend.position="none") + scale_x_continuous(limits = c(0,0.5)) +
-  scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12, 14, 16))
+  ggplot(aes(x = min_bm, y = prey_num, colour = prey_num)) + geom_point() + scale_colour_viridis() +theme_cowplot() +
+  xlab('Minimum body mass to support community') + ylab('Prey diversity') + theme(legend.position="none") + scale_x_continuous(limits = c(0,0.7)) +
+  scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10, 12, 14, 16)) 
 
 ggsave('Figures/Figure5a.jpeg', min_bm_support, height = 8)
 
@@ -254,7 +257,7 @@ survived_a <- survived %>%
   #slice(1:2) %>% 
   filter(prey_num < 14) %>% 
   select(starts_with("X"), mean_bm) %>% 
-  mutate_all(attack_r, a0 = 0.0005, br = 1.30000000,e = 0.07172922) %>% 
+  mutate_all(attack_p, a0 = 0.01355435, a1 = -1.32295406) %>% 
   rowwise() %>% 
   mutate(mean_a = lift_vd(mean, na.rm = TRUE)(X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, 
                                               X18, X19, X20, X21)) %>% as.data.frame()
@@ -262,7 +265,7 @@ survived_a <- survived %>%
 survived_h <- survived %>% 
   filter(prey_num < 14) %>% 
   select(starts_with("X"), mean_bm) %>% 
-  mutate_all(handling_r, h0 = 5, al = 2.41854333) %>% 
+  mutate_all(handling_p, h0 = 23.36159864, h1 = 2.40209203) %>% 
   rowwise() %>% 
   mutate(mean_h = lift_vd(mean, na.rm = TRUE)(X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, 
                                               X18, X19, X20, X21)) %>% as.data.frame()
@@ -279,18 +282,20 @@ a_h_survived <- survived %>%
   select(Fail, prey_num) %>% 
   bind_cols(survived_a, survived_h)
 
+
+
 ah_mean_bm <- a_h_survived %>% 
   filter(prey_num %in% c(1:13), Fail == FALSE) %>% 
-  ggplot(aes(x = a_mean_bm, y = h_mean_bm, colour = prey_num)) + geom_point() +
+  ggplot(aes(x = a_mean_bm, y = h_mean_bm, colour = prey_num)) + geom_point() + theme_cowplot() +
   scale_colour_viridis() + xlab(expression(paste("a(",bar("m"),")"))) + ylab(expression(paste("h(",bar("m"),")"))) +
-  scale_y_continuous(limits = c(0, 3))+ theme(legend.position = "none") +
+  scale_y_continuous(limits = c(0, 16))+ theme(legend.position = "none") +
   theme(axis.text=element_text(size=20),
         axis.title=element_text(size=26))
 
 mean_ah <- a_h_survived %>% 
   filter(prey_num %in% c(1:13), Fail == FALSE) %>% 
-  ggplot(aes(x = mean_a, y = mean_h, colour = prey_num)) + geom_point() +
-  scale_colour_viridis() + scale_y_continuous(limits = c(0, 3)) + ylab(expression(bar("h(m)")) ) +
+  ggplot(aes(x = mean_a, y = mean_h, colour = prey_num)) + geom_point() +theme_cowplot() +
+  scale_colour_viridis() + scale_y_continuous(limits = c(0, 16)) + ylab(expression(bar("h(m)")) ) +
   xlab(expression(bar("a(m)")) ) + theme(legend.position = "none")+
   theme(axis.text=element_text(size=20),
         axis.title=element_text(size=26))
@@ -298,8 +303,8 @@ mean_ah <- a_h_survived %>%
 
 h_plot <-a_h_survived %>% 
   filter(prey_num %in% c(1:13), Fail == FALSE) %>% 
-  ggplot(aes(x = h_mean_bm, y = mean_h, colour = prey_num)) + geom_point() +
-  scale_colour_viridis() + scale_x_continuous(limits = c(0, 3)) + scale_y_continuous(limits = c(0, 3)) +
+  ggplot(aes(x = h_mean_bm, y = mean_h, colour = prey_num)) + geom_point() +theme_cowplot() +
+  scale_colour_viridis() + scale_x_continuous(limits = c(0, 20)) + scale_y_continuous(limits = c(0, 30)) +
   geom_abline(slope = 1, intercept = 0) + theme(legend.position = "none") + xlab(expression(paste("h(",bar("m"),")"))) +
   ylab(expression(bar("h(m)")) )+
   theme(axis.text=element_text(size=20),
@@ -307,17 +312,16 @@ h_plot <-a_h_survived %>%
 
 a_plot <-a_h_survived %>% 
   filter(prey_num %in% c(1:13), Fail == FALSE) %>% 
-  ggplot(aes(x = a_mean_bm, y = mean_a, colour = prey_num)) + geom_point() +
+  ggplot(aes(x = a_mean_bm, y = mean_a, colour = prey_num)) + geom_point() +theme_cowplot() +
   scale_colour_viridis()  +
   geom_abline(slope = 1, intercept = 0) + theme(legend.position = "none") + xlab(expression(paste("a(",bar("m"),")"))) +
   ylab(expression(bar("a(m)")) ) +
   theme(axis.text=element_text(size=20),
         axis.title=element_text(size=26))
 
-
 legend_number <-a_h_survived %>% 
   filter(prey_num %in% c(1:13), Fail == FALSE) %>% 
-  ggplot(aes(x = a_mean_bm, y = mean_a, colour = prey_num)) + geom_point() +
+  ggplot(aes(x = a_mean_bm, y = mean_a, colour = prey_num)) + geom_point() +theme_cowplot() +
   scale_colour_viridis(name = "Prey diversity", breaks = c(0, 2, 4, 6, 8, 10, 12))  +
   geom_abline(slope = 1, intercept = 0) + theme() +
   theme(legend.text=element_text(size=20),
@@ -333,26 +337,25 @@ ggsave('Figures/legendFigure5.jpeg', legend_number)
 
 
 ##### FIGURE A4####
-two_small <- run_stochastic_model(c(0.1, 0.15), 500, 0) %>%
+two_small <- run_stochastic_model(c(0.4, 0.45), 1000, 0) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("") +
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("") +theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
-two_medium <- run_stochastic_model(c(0.15, 0.2), 500, 0) %>%
+two_medium <- run_stochastic_model(c(0.45, 0.5), 1000, 0) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('') + xlab("")+
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('') + xlab("")+theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
-two_medium_l <- run_stochastic_model(c(0.2, 0.35), 500, 0) %>%
+two_medium_l <- run_stochastic_model(c(0.5, 0.65), 1000, 0) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("Time")+
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("Time")+theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
-two_large <- run_stochastic_model(c(0.35, 0.4), 500, 0) %>%
+two_large <- run_stochastic_model(c(0.65, 0.7), 1000, 0) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('') + xlab("Time")+
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('') + xlab("Time")+theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
-
 
 
 two_prey_plot_time_series <- plot_grid(two_small, two_medium, two_medium_l, two_large, 
@@ -364,27 +367,25 @@ ggsave('Figures/FigureA4.jpeg', two_prey_plot_time_series )
 
 #### FIGURE A3 #####
 
-two_medium_same <- run_stochastic_model(c(0.2, 0.20), 500, 0) %>%
+two_medium_same <- run_stochastic_model(c(0.5, 0.5), 1000, 0) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("") +
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("") +theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
-two_medium_s_diff <- run_stochastic_model(c(0.2, 0.1), 500, 0) %>%
+two_medium_s_diff <- run_stochastic_model(c(0.5, 0.51), 1000, 0) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line()+ ylab('') + xlab("")+
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line()+ ylab('') + xlab("")+theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
-two_large_same <- run_stochastic_model(c(0.4, 0.4), 500, 0) %>%
+two_large_same <- run_stochastic_model(c(0.8, 0.8), 1000, 0) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("Time")+
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("Time")+theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
-
-two_large_s_diff <- run_stochastic_model(c(0.4, 0.41), 500, 0) %>%
+two_large_s_diff <- run_stochastic_model(c(0.8, 0.81), 1000, 0) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line()+ ylab('') + xlab("Time")+
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line()+ ylab('') + xlab("Time")+theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
-
 
 
 two_prey_plot_time_series_similar <- plot_grid(two_medium_same, two_medium_s_diff, two_large_same, two_large_s_diff, 
@@ -398,24 +399,24 @@ ggsave('Figures/FigureA3.jpeg', two_prey_plot_time_series_similar)
 #### Asymetric time series ####
 
 
-two_small <- run_stochastic_model(c(0.08, 0.15), 500, 0.5) %>%
+two_small <- run_stochastic_model(c(0.4, 0.45), 1000, 0.5) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("") +
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("") +theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
-two_medium <- run_stochastic_model(c(0.15, 0.2), 500, 0.5) %>%
+two_medium <- run_stochastic_model(c(0.45, 0.5), 1000, 0.5) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('') + xlab("")+
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('') + xlab("")+theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
-two_medium_l <- run_stochastic_model(c(0.14, 0.15), 500, 0.5) %>%
+two_medium_l <- run_stochastic_model(c(0.45, 0.46), 1000, 0.5) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("Time")+
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('Abundance') + xlab("Time")+theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
-two_large <- run_stochastic_model(c(0.35, 0.4), 500, 0.5) %>%
+two_large <- run_stochastic_model(c(0.65, 0.7), 1000, 0.5) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('') + xlab("Time")+
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab('') + xlab("Time")+theme_cowplot() +
   theme( axis.text.x = element_text(size = 10)) 
 
 
@@ -432,28 +433,28 @@ ggsave('Figures/FigureA8.jpeg', two_prey_plot_time_series )
 ##### Figure 2 ####
 
 
-small <- run_stochastic_model(c(0.07), 500) %>%
+small <- run_stochastic_model(c(0.25), 1000) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab("Abundance") + xlab("") +
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab("Abundance") + xlab("") +theme_cowplot() +
   theme(legend.position="none")
 
-medium <- run_stochastic_model(c(0.12), 500) %>%
+medium <- run_stochastic_model(c(0.40), 1000) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab("") + xlab("Time") + 
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab("") + xlab("Time") + theme_cowplot() +
   theme(legend.position="none")
 
-large <- run_stochastic_model(c(0.25), 500) %>%
+large <- run_stochastic_model(c(0.9), 1000) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab("") + xlab("") + 
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab("") + xlab("") + theme_cowplot() +
   theme(legend.position="none")
 
 one_prey <- plot_grid(small, medium, large, nrow = 1)
 
-ggsave('Figures/Figure2.jpeg', one_prey, width = 10)
+ggsave('MC_case/Figures/Better_figues/one_prey.jpeg', one_prey, width = 10)
 
 legend_one_prey <- run_stochastic_model(c(0.25), 500) %>%
   gather(species, abundance, -time) %>%
-  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab("") + xlab("")
+  ggplot(aes(x = time, y = abundance, colour = species)) + geom_line() + ylab("") + xlab("") +theme_cowplot()
 
 ggsave('Figures/legendFigure2.jpeg', legend_one_prey)
 
@@ -474,13 +475,13 @@ num_below_proportion <- min_max_vertical %>%
 below_end <- num_below_proportion %>% 
   ungroup() %>% 
   filter(Fail == FALSE) %>% 
-  ggplot(aes(x = prey_survive, y = proportion, colour = proportion_below_community)) + geom_point(position = 'jitter') +
+  ggplot(aes(x = prey_survive, y = proportion, colour = proportion_below_community)) + geom_point(position = 'jitter') +theme_cowplot() +
   scale_colour_viridis(name = 'Proportion of \nsmall prey in\nthe community') +  xlab("Prey diversity at the end of the simulation") + ylab("Proportion of runs where predator survives") 
 
 above_end <- num_below_proportion %>% 
   ungroup() %>% 
   filter(Fail == FALSE) %>% 
-  ggplot(aes(x = prey_survive, y = proportion, colour = proportion_above_community)) + geom_point(position = 'jitter') +
+  ggplot(aes(x = prey_survive, y = proportion, colour = proportion_above_community)) + geom_point(position = 'jitter') +theme_cowplot() +
   scale_colour_viridis(name = 'Proportion of \nlarge prey in\nthe community') +  xlab("Prey diversity at the end of the simulation") + ylab("Proportion of runs where predator survives") 
 
 above_below_survive <- plot_grid(below_end, above_end)
@@ -505,7 +506,7 @@ num_below_proportion <- min_max_vertical %>%
 above_survive <- num_below_proportion %>% 
   ungroup() %>% 
   filter(Fail == FALSE) %>% 
-  ggplot(aes(x = prey_survive, y = proportion, colour = proportion_above_community)) + geom_point(position = 'jitter') +
+  ggplot(aes(x = prey_survive, y = proportion, colour = proportion_above_community)) + geom_point(position = 'jitter') +theme_cowplot() +
   scale_colour_viridis(name = 'Proportion of \nlarge prey in\nthe community') +  xlab("Prey diversity at the end of the simulation") + ylab("Proportion of runs where predator persists") 
 
 

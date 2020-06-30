@@ -1,43 +1,49 @@
 library(dplyr)
 library(gtools)
 
-## parameters
 
-attack_r <- function(a0, br, e, m) {
-  a0*(m^br)*(3.3/(m))*exp(e*(3.3/m))
+attack_p <- function(a0, m, a1) {
+  a0*(m^a1)
 }
 
-handling_r <- function(h0,al, m){
-  h0*(m^al)
+handling_p <- function(h0,h1, m){
+  h0*(m^h1)
 }
 
 carrying <- function(k0, k, m){
-  K <- k0* m ^ k
-}
-
-carrying_gausian <- function(Km, sig_K, um, m){
-  K <- Km*exp(-((m - um)^2)/(2*sig_K^2)) 
+  k0* m ^ k
 }
 
 growth_rate <- function(rmax, r, m){
-  growthrate <-  rmax * m ^ r
+  rmax * m ^ r
 }
 
-### estimate parameters given m
+conversion_efficiency <- function(GGE, m){
+  GGE*(m)
+}
+
 
 parameters_given_bm <- function(m){
-  a <- attack_r(a0 = 0.0005, br = 1.30000000 ,e = 0.07172922  , m)
-  h <- handling_r(h0 = 5, al = 2.41854333, m)
+  #a <- attack_r(a0 = 0.0005, br = 1.30000000 ,e = 0.07172922  , m) old
+  #h <- handling_r(h0 = 5, al = 2.41854333, m) old
+  a <- attack_p(a0 = 0.01355435, a1 = -1.32295406 , m) #estimated
+  h <- handling_p(h0 = 23.36159864, h1 = 2.40209203, m) #estimated
+  #a <- attack_p(a0 = 0.0005, a1 = -1.32295406 , m)
+  #h <- handling_p(h0 = 5, h1 = 2.40209203, m)
   gr <- growth_rate(rmax = 0.05, r = -0.20, m)
   K <- carrying(k0 = 6, k = -1, m)
-  return(list(a, h, K, gr))
+  b <- conversion_efficiency(GGE = 0.8, m)
+  return(list(a, h, K, gr, b))
 }
 
 interaction_st <- function(m, min.value, max.value, Be = 0.5){
+  #is <- (1 + ((m[1] - m[2])^2)/(2*(0.025^2)))^-1 # original
+  
   is <- (1/(1 + ((m[1] - m[2] + Be)^2)/(2*(0.025^2))))*(1 + ((Be^2)/(2*(0.025^2))))
   
   return(is)
 }
+
 
 interaction_name <- function(preys){
   paste0('is', preys[1],preys[2])
@@ -46,6 +52,8 @@ interaction_name <- function(preys){
 interaction_all <- function(preybm_vector, min.value, max.value, Be){
   
   total_prey <- length(preybm_vector)
+  
+  #combs_all <- combinations(n = total_prey, v = 1:total_prey, r = 2)
   
   combs_all <- permutations(n = total_prey, v = 1:total_prey, r = 2)
   
@@ -104,14 +112,18 @@ parameters <- function(preybm_vector, Be){
   h <- all_params[[2]]
   names(h) <- hnames
   
+  bnames <- paste0('b', 1:total_prey)
+  b <- all_params[[5]]
+  names(b) <- bnames
+  
   if(total_prey == 1){
     is_all <- 0
   }else{
     is_all <- interaction_all(preybm_vector, min.value, max.value, Be = Be)
   }
   
-  parameters <- c(r, K, a, h, is_all,
-                  B = 0.2, C = 0.4)
+  parameters <- c(r, K, a, h, is_all, b,
+                  C = 0.4)
   
   return(parameters)
 }
@@ -119,7 +131,7 @@ parameters <- function(preybm_vector, Be){
 
 
 
-## model choice depending on the number of prey used
+## model choice
 
 prey_number_stoch <- function()
   list(prey_advance1, prey_advance2, prey_advance3more)
@@ -130,44 +142,44 @@ use_prey_number_stoch <- function(ll){
 }
 
 
-prey_advance1 <- function(pret, rv, kv, av, hv, Pt, B, C, total_prey, is){
-  pret2 <- pret + rpois(1, rv*pret)*(1 - (pret/kv)) - av*pret*Pt/(1 + sum(av*hv*pret))
-  Pt2 <- Pt + rpois(1,Pt*B*sum(av*pret)/(1 + sum(av*hv*pret)))- C*Pt
+prey_advance1 <- function(pret, rv, kv, av, hv, Pt, bv, C, total_prey, is){
+  pret2 <- pret + rv*pret*(1 - (pret/kv)) - av*pret*Pt/(1 + sum(av*hv*pret))
+  Pt2 <- Pt + Pt*sum(bv*av*pret)/(1 + sum(av*hv*pret))- C*Pt
   nt2 <- c(pret2, Pt2)
   return(nt2)
 }
 
 
-prey_advance2 <- function(pret, rv, kv, av, hv, Pt, B, C, total_prey, is){
-  pret2 <- pret + sapply(1:total_prey, FUN = function(x){rpois(1, rv[x]*pret[x])})*(1 - ((pret + sapply(1:total_prey, FUN = function(x){sum(is[x]*pret[-x])}))/kv)) -
+prey_advance2 <- function(pret, rv, kv, av, hv, Pt, bv, C, total_prey, is){
+  pret2 <- pret + sapply(1:total_prey, FUN = function(x){rv[x]*pret[x]})*(1 - ((pret + sapply(1:total_prey, FUN = function(x){sum(is[x]*pret[-x])}))/kv)) -
     av*pret*Pt/(1 + sum(av*hv*pret))  
   
-  Pt2 <- Pt + rpois(1,Pt*B*sum(av*pret)/(1 + sum(av*hv*pret)))- C*Pt
+  Pt2 <- Pt + Pt*sum(bv*av*pret)/(1 + sum(av*hv*pret))- C*Pt
   nt2 <- c(pret2, Pt2)
   return(nt2)
 }
 
 
-prey_advance3more <- function(pret, rv, kv, av, hv, Pt, B, C, total_prey, is){
-  pret2 <- pret + sapply(1:total_prey, FUN = function(x){rpois(1, rv[x]*pret[x])})*(1 - ((pret + sapply(1:total_prey, FUN = function(x){sum(is[((total_prey-1)*x-(total_prey-2)):((total_prey-1)*x)]*pret[-x])}))/kv)) -
+prey_advance3more <- function(pret, rv, kv, av, hv, Pt, bv, C, total_prey, is){
+  pret2 <- pret + sapply(1:total_prey, FUN = function(x){rv[x]*pret[x]})*(1 - ((pret + sapply(1:total_prey, FUN = function(x){sum(is[((total_prey-1)*x-(total_prey-2)):((total_prey-1)*x)]*pret[-x])}))/kv)) -
     av*pret*Pt/(1 + sum(av*hv*pret))
   
-  Pt2 <- Pt + rpois(1,Pt*B*sum(av*pret)/(1 + sum(av*hv*pret)))- C*Pt
+  Pt2 <- Pt + Pt*sum(bv*av*pret)/(1 + sum(av*hv*pret))- C*Pt
   nt2 <- c(pret2, Pt2)
   return(nt2)
 }
 
 
-#### Function that runs the stochastic model
 
 run_stochastic_model <- function(preybm_vector, generations, Be){
-
+  
   total_prey <- length(preybm_vector)
   
   rv <- parameters_given_bm(preybm_vector)[[4]]
   kv <- parameters_given_bm(preybm_vector)[[3]]
   av <- parameters_given_bm(preybm_vector)[[1]]
   hv <- parameters_given_bm(preybm_vector)[[2]]
+  bv <- parameters_given_bm(preybm_vector)[[5]]
   
   if(total_prey > 1){
     is <- interaction_all(preybm_vector, 0.02, 1, Be) 
@@ -175,7 +187,6 @@ run_stochastic_model <- function(preybm_vector, generations, Be){
     is <- NULL
   }
   
-  B <- 0.5
   C <- 0.05
   
   R0 <- 10
@@ -190,11 +201,11 @@ run_stochastic_model <- function(preybm_vector, generations, Be){
   
   for(g in 1:generations){
     
-    nt2 <- fun_to_use(pret, rv, kv, av, hv, Pt, B, C, total_prey, is)
+    nt2 <- fun_to_use(pret, rv, kv, av, hv, Pt, bv, C, total_prey, is)
     
-    if(any(nt2 < 0.5)){
+    if(any(nt2 < 0.01)){
       
-      nt2[nt2 < 0.5] <- 0
+      nt2[nt2 < 0.01] <- 0
     }
     pret <- nt2[1:total_prey]
     Pt <- nt2[total_prey+1]
@@ -205,7 +216,13 @@ run_stochastic_model <- function(preybm_vector, generations, Be){
   return(abundances)
 }
 
-## MCMC functions to move the parameters
+
+## Parameter functions
+
+#step_forward <- function(current.value, step.size){
+#new.value <- current.value + round(((runif(1,0,1)- 0.5)* 2 * step.size), digits = 2)
+#return(new.value)
+#}
 
 step_forward <- function(current.value, step.size, min.value, max.value){
   new.value <- round(rnorm(1, mean = current.value, sd = step.size), digits = 2)
@@ -222,10 +239,22 @@ step_back <- function(current.value){
   return(new.value)
 }
 
+#is_valid  <- function(new.value, min.value, max.value){
+#if(new.value <= max.value & new.value >= min.value){
+#TRUE
+#}else{FALSE
+#}
+#}
+
 get_new_value <- function(current.value, step.size, min.value, max.value){
   
   new_value <- step_forward(current.value, step.size, min.value, max.value)
   
+  #if(is_valid(new_value, min.value, max.value)) {
+  #return(new_value)
+  #}else{
+  #new_value <- get_new_value(current.value, step.size, min.value, max.value)
+  #}
   new_value
 }
 
@@ -244,6 +273,19 @@ species_survive <- function(output, generations){
     FALSE
   }
 }
+
+predator_maximal <- function(output, generations){
+  if(nrow(output) == generations+1){
+    if(round(output[generations+1,'P'], 5) > 30){
+      TRUE
+    }else{
+      FALSE
+    }
+  }else{
+    FALSE
+  }
+}
+
 
 horizontal_diversity <- function(output, generations){
   if(nrow(output) == generations+1){
@@ -278,6 +320,10 @@ run_mcmc_1 <- function(bms, params, total.min, total.max, generations, Be){
   
   return(list(new = new.bms, initial = bms, out = output_int))
 }
+
+
+
+
 
 type_output <- function(){
   list(species_survive, predator_maximal, horizontal_diversity, vertical_diversity)
@@ -344,4 +390,3 @@ get_final_output <- function(prey_numer, param_general, type, Be){
   return(bm_survived)
   
 }
-
