@@ -2,8 +2,7 @@
 
 This repository contains code and data associated with “Prey body mass and richness underlie the persistence of a top predator.”
 
-Guzman L.M. & Srivastava D.S. 
-
+Guzman LM, Srivastava DS. 2019 Prey body mass and richness underlie the persistence of a top predator. Proc. R. Soc. B 286: 20190622. http://dx.doi.org/10.1098/rspb.2019.0622
 
 ## In a nutshell
 
