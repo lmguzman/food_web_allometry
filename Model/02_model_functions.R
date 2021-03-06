@@ -1,6 +1,9 @@
 library(dplyr)
 library(gtools)
 
+### Functions for running the model ##
+
+## Body mass functions ##
 
 attack_p <- function(a0, m, a1) {
   a0*(m^a1)
@@ -22,14 +25,11 @@ conversion_efficiency <- function(GGE, m){
   GGE*(m)
 }
 
+## parameterizing body size functions
 
 parameters_given_bm <- function(m){
-  #a <- attack_r(a0 = 0.0005, br = 1.30000000 ,e = 0.07172922  , m) old
-  #h <- handling_r(h0 = 5, al = 2.41854333, m) old
   a <- attack_p(a0 = 0.01355435, a1 = -1.32295406 , m) #estimated
   h <- handling_p(h0 = 23.36159864, h1 = 2.40209203, m) #estimated
-  #a <- attack_p(a0 = 0.0005, a1 = -1.32295406 , m)
-  #h <- handling_p(h0 = 5, h1 = 2.40209203, m)
   gr <- growth_rate(rmax = 0.05, r = -0.20, m)
   K <- carrying(k0 = 6, k = -1, m)
   b <- conversion_efficiency(GGE = 0.8, m)
@@ -49,6 +49,8 @@ interaction_name <- function(preys){
   paste0('is', preys[1],preys[2])
 }
 
+## determines species competitive interactions
+
 interaction_all <- function(preybm_vector, min.value, max.value, Be){
   
   total_prey <- length(preybm_vector)
@@ -67,6 +69,8 @@ interaction_all <- function(preybm_vector, min.value, max.value, Be){
   
   return(values_is)
 }
+
+## determines names for species given the number of prey species
 
 prey_names <- function(total_prey){
   name_list <- list(c("R1", "P"), c("R1", "R2", "P"), c("R1", "R2", "R3", "P"),
@@ -89,7 +93,7 @@ prey_names <- function(total_prey){
   return(name_selected)
 }
 
-
+## function that determines the parameters 
 
 parameters <- function(preybm_vector, Be){
   all_params <- parameters_given_bm(preybm_vector)
@@ -131,7 +135,7 @@ parameters <- function(preybm_vector, Be){
 
 
 
-## model choice
+## Functions that chose the model based on the number of prey species
 
 prey_number_stoch <- function()
   list(prey_advance1, prey_advance2, prey_advance3more)
@@ -170,6 +174,7 @@ prey_advance3more <- function(pret, rv, kv, av, hv, Pt, bv, C, total_prey, is){
 }
 
 
+## Function that runs the model (used to be stochastic, now deterministic but kept the same name)
 
 run_stochastic_model <- function(preybm_vector, generations, Be){
   
@@ -217,12 +222,9 @@ run_stochastic_model <- function(preybm_vector, generations, Be){
 }
 
 
-## Parameter functions
+### MCMC handling functions ###
 
-#step_forward <- function(current.value, step.size){
-#new.value <- current.value + round(((runif(1,0,1)- 0.5)* 2 * step.size), digits = 2)
-#return(new.value)
-#}
+## Step forward mcmc
 
 step_forward <- function(current.value, step.size, min.value, max.value){
   new.value <- round(rnorm(1, mean = current.value, sd = step.size), digits = 2)
@@ -233,34 +235,27 @@ step_forward <- function(current.value, step.size, min.value, max.value){
   return(new.value)
 }
 
+## step back mcmc
 
 step_back <- function(current.value){
   new.value <- current.value 
   return(new.value)
 }
 
-#is_valid  <- function(new.value, min.value, max.value){
-#if(new.value <= max.value & new.value >= min.value){
-#TRUE
-#}else{FALSE
-#}
-#}
+## get new value mcmc
 
 get_new_value <- function(current.value, step.size, min.value, max.value){
   
   new_value <- step_forward(current.value, step.size, min.value, max.value)
-  
-  #if(is_valid(new_value, min.value, max.value)) {
-  #return(new_value)
-  #}else{
-  #new_value <- get_new_value(current.value, step.size, min.value, max.value)
-  #}
+
   new_value
 }
 
 
 
-#### MCMC functions
+## mcmc acceptance functions
+
+# all species survive
 
 species_survive <- function(output, generations){
   if(nrow(output) == generations+1){
@@ -274,6 +269,8 @@ species_survive <- function(output, generations){
   }
 }
 
+# predator survives
+
 predator_maximal <- function(output, generations){
   if(nrow(output) == generations+1){
     if(round(output[generations+1,'P'], 5) > 30){
@@ -286,6 +283,7 @@ predator_maximal <- function(output, generations){
   }
 }
 
+# maintains horizontal diversity
 
 horizontal_diversity <- function(output, generations){
   if(nrow(output) == generations+1){
@@ -299,6 +297,8 @@ horizontal_diversity <- function(output, generations){
   }
 }
 
+#maintains vertical diversity
+
 vertical_diversity <- function(output, generations){
   if(nrow(output) == generations+1){
     if(output[generations+1,'P'] > 1 & any(output[generations+1,c(-1, -ncol(output))] > 1)){
@@ -311,6 +311,7 @@ vertical_diversity <- function(output, generations){
   }
 }
 
+# runs the model simulation based on one parameter combination
 
 run_mcmc_1 <- function(bms, params, total.min, total.max, generations, Be){
   
@@ -322,8 +323,7 @@ run_mcmc_1 <- function(bms, params, total.min, total.max, generations, Be){
 }
 
 
-
-
+# runs the type of mcmc
 
 type_output <- function(){
   list(species_survive, predator_maximal, horizontal_diversity, vertical_diversity)
@@ -334,6 +334,7 @@ use_mcmc <- function(ll){
 }
 
 
+## steps through the mcmc 
 
 run_mcmc_2 <- function(list_output_int, generations, type){
   
@@ -359,7 +360,7 @@ run_mcmc_2 <- function(list_output_int, generations, type){
 
 
 
-## Running for multiple species
+## Running all the process from the simulation to the mcmc
 
 
 get_final_output <- function(prey_numer, param_general, type, Be){
